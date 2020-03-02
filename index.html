@@ -7,6 +7,7 @@
 
 <body>
   <audio autoplay controls></audio>
+  <pre>DELTAnine Live at 8X10 on 2013-12-11 (Deltanine121113Pt3Wav.wav)</pre>
   <script>
     // AudioWorkletStream 
     // Stream audio from Worker to AudioWorklet (POC)
@@ -14,21 +15,14 @@
     "use strict";
     if (gc) gc();
     const handleEvents = e => globalThis.console.log(e.type === "statechange" ? e.target.state : e.type);
-    // TODO "seamless" playback; media fragment concatenation, processing; seekable streams
     const audio = document.querySelector("audio");
     // audio.ontimeupdate = e => console.log(audio.currentTime, ac.currentTime);
-    const events = ["durationchange", "ended", "loadedmetadata", "pause"
-    , "play", "playing", "suspend", "waiting"];
+    const events = ["durationchange", "ended", "loadedmetadata", "pause", "play", "playing", "suspend", "waiting"];
     for (let event of events) audio.addEventListener(event, handleEvents);
 
     class AudioWorkletStream {
       constructor({
-        codecs = ["audio/wav"]
-        , urls = [""]
-        , sampleRate = 44100
-        , numberOfChannels = 2
-        , latencyHint = "playback"
-        , workletOptions = {}
+        codecs = ["audio/wav"], urls = [""], sampleRate = 44100, numberOfChannels = 2, latencyHint = "playback", workletOptions = {}
       } = {}) {
         this.mediaStreamTrack = new Promise(async resolve => {
           gc();
@@ -38,6 +32,7 @@
             latencyHint
           });
           await ac.suspend();
+          console.log(ac.baseLatency);
           ac.onstatechange = handleEvents;
           await ac.audioWorklet.addModule("audioWorklet.js");
           const aw = new AudioWorkletNode(ac, "audio-data-worklet-stream", workletOptions);
@@ -85,10 +80,6 @@
               aw.port.close();
               worker.terminate();
               await ac.close();
-              // audio.srcObject.removeTrack(audio.srcObject.getAudioTracks()[0]);
-              // audio.load();
-              for (let event of events) audio.removeEventListener(event, handleEvents);
-              if (gc) gc();
               // currentTime(s)    
               console.log({
                 audio: audio.currentTime,
@@ -97,6 +88,10 @@
                 minutes: Math.floor(e.data.currentTime / 60),
                 seconds: ((e.data.currentTime / 60) - Math.floor(e.data.currentTime / 60)) * 60
               });
+              // audio.srcObject.removeTrack(audio.srcObject.getAudioTracks()[0]);
+              // audio.load();
+              for (let event of events) audio.removeEventListener(event, handleEvents);
+              if (gc) gc();
             };
           };
         });
@@ -111,17 +106,15 @@
         urls: ["https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav"],
         sampleRate: 44100,
         numberOfChannels: 2,
-        latencyHint: "playback",
+        latencyHint: 0.05,
         workletOptions: {
           numberOfInputs: 2,
           numberOfOutputs: 2,
           channelCount: 2,
           processorOptions: {
-            buffers: {
-              channel0: [],
-              channel1: []
-            },
-            i: 0
+            buffers: new Map,
+            i: 0,
+            n: 0
           }
         }
       });
