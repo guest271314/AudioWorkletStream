@@ -13,12 +13,13 @@
     // Stream audio from Worker to AudioWorklet (POC)
     // guest271314 2-24-2020
     "use strict";
-    if (gc) gc();
     const handleEvents = e => globalThis.console.log(e.type === "statechange" ? e.target.state : e.type);
     const audio = document.querySelector("audio");
     // audio.ontimeupdate = e => console.log(audio.currentTime, ac.currentTime);
     const events = ["durationchange", "ended", "loadedmetadata", "pause", "play", "playing", "suspend", "waiting"];
-    for (let event of events) audio.addEventListener(event, handleEvents);
+    for (const evt of events) {
+      audio.addEventListener(evt, handleEvents);
+    }
 
     class AudioWorkletStream {
       constructor({
@@ -90,8 +91,7 @@
               });
               // audio.srcObject.removeTrack(audio.srcObject.getAudioTracks()[0]);
               // audio.load();
-              for (let event of events) audio.removeEventListener(event, handleEvents);
-              if (gc) gc();
+              for (const event of events) audio.removeEventListener(event, handleEvents);
             };
           };
         });
@@ -106,7 +106,7 @@
         urls: ["https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav"],
         sampleRate: 44100,
         numberOfChannels: 2,
-        latencyHint: 0.05,
+        latencyHint: "playback",
         workletOptions: {
           numberOfInputs: 2,
           numberOfOutputs: 2,
