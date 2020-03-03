@@ -3,8 +3,8 @@
 // guest271314 2-24-2020
 import {
   CODECS
-} from "./codecs.js";
-if (self.gc) self.gc();
+}
+from "./codecs.js";
 let port;
 onmessage = async e => {
   "use strict";
@@ -18,7 +18,8 @@ onmessage = async e => {
   } = e.data;
   const {
     default: processStream
-  } = await import(CODECS.get(mimeCodec));
+  } = await
+  import (CODECS.get(mimeCodec));
   const response = await fetch(url);
   const readable = response.body;
   port.postMessage({
