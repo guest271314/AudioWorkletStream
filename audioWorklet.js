@@ -1,9 +1,6 @@
 class AudioDataWorkletStream extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
-    if (globalThis.gc) {
-      globalThis.gc();
-    }
     if (options.processorOptions) {
       Object.assign(this, options.processorOptions);
     }
@@ -77,7 +74,6 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       currentTime,
       currentFrame
     });
-    if (globalThis.gc) globalThis.gc();
   }
   process(inputs, outputs) {
     if (this.i > 0 && this.buffers.size === 0) {
