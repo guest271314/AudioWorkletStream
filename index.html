@@ -79,19 +79,12 @@
               msd.disconnect();
               aw.disconnect();
               aw.port.close();
-              worker.terminate();
               await ac.close();
-              // currentTime(s)    
-              console.log({
-                audio: audio.currentTime,
-                currentTime: e.data.currentTime,
-                currentFrame: e.data.currentFrame,
-                minutes: Math.floor(e.data.currentTime / 60),
-                seconds: ((e.data.currentTime / 60) - Math.floor(e.data.currentTime / 60)) * 60
-              });
+              console.log(e.data.currentTime, e.data.currentFrame);
               // audio.srcObject.removeTrack(audio.srcObject.getAudioTracks()[0]);
               // audio.load();
               for (const event of events) audio.removeEventListener(event, handleEvents);
+              worker.terminate();
             };
           };
         });
@@ -104,9 +97,7 @@
         codecs: ["audio/wav"],
         // 291MB
         urls: ["https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav"],
-        sampleRate: 44100,
-        numberOfChannels: 2,
-        latencyHint: "playback",
+        latencyHint: 1.0,
         workletOptions: {
           numberOfInputs: 2,
           numberOfOutputs: 2,
