@@ -10,6 +10,8 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
   async appendBuffers({ data: { readable, processStream } }) {
     processStream = new Function(`return ${processStream}`)();
     // https://github.com/WebAudio/web-audio-api-v2/issues/70
+    // store at least minSamples before posting to main thread
+    // where resume() is executed then process() for first time
     const minSamples = 64;
     let next = [];
     let overflow = [[], []];
@@ -103,7 +105,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           });
           ++this.i;
         }
-      },
+      }
     };
 
     const writable = new WritableStream(source, strategy);
@@ -118,14 +120,14 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       currentTime,
       currentFrame,
       overflow,
-      next,
+      next
     });
   }
   endOfStream() {
     this.port.postMessage({
       ended: true,
       currentTime,
-      currentFrame,
+      currentFrame
     });
   }
   process(inputs, outputs) {
