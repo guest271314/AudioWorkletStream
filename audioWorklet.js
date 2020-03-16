@@ -62,7 +62,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
             overflow1.push(..._ch1);
             break;
           }
-          if (overflow0.length) {
+          if (overflow0.length || overflow1.length) {
             __ch0 = overflow0.splice(0, overflow0.length);
             __ch1 = overflow1.splice(0, overflow1.length);
             while (__ch0.length < 128 && _ch0.length) {
