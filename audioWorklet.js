@@ -9,8 +9,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
   }
   async appendBuffers({ data: { readable, processStream } }) {
     processStream = new Function(`return ${processStream}`)();
-    // https://github.com/WebAudio/web-audio-api-v2/issues/70
-    const minSamples = 48;
+    const minSamples = 64;
     let next = [];
     let overflow = [[], []];
     let init = false;
@@ -89,20 +88,15 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       close: _ => {
         console.log('writable close');
         // handle overflow floats < 128 length
-        const [overflow0, overflow1] = overflow;
-        if (overflow0.length || overflow1.length) {
-          const channel0 = new Float32Array(
-            overflow0.splice(0, overflow0.length)
-          );
-          const channel1 = new Float32Array(
-            overflow1.splice(0, overflow1.length)
-          );
+        if (overflow[0].length || overflow[0].length) {
+          const channel0 = new Float32Array(overflow.splice(0, 1)[0]);
+          const channel1 = new Float32Array(overflow.splice(0, 1)[0]);
           this.buffers.set(this.i, {
             channel0,
             channel1,
           });
           ++this.i;
-        }
+        };
       },
     };
 
