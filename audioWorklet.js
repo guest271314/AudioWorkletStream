@@ -9,7 +9,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
   }
   async appendBuffers({ data: { readable, processStream } }) {
     processStream = new Function(`return ${processStream}`)();
-    const minSamples = 64;
+    const minSamples = 32;
     let next = [];
     let overflow = [[], []];
     let init = false;
@@ -144,11 +144,9 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       return false;
     }
     let channel0, channel1;
+    // handle channel0 undefined at this.buffers.get(this.n)
+    // e.g., mimSamples <= 32
     try {
-      // process() can be executed before appendBuffers()
-      // where this.buffers is set with values
-      // handle this.buffers.get(this.n) being undefined
-      // for N (e.g., 32) calls to process()
       ({ channel0, channel1 } = this.buffers.get(this.n));
       // glitches can occur when sample frame size is less than 128
       if (
@@ -166,7 +164,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     } catch (e) {
       console.error(e, this.buffers.size, this.i, this.n);
       // handle this.buffers.size === 0
-      // ({ channel0, channel1 } = this.buffers.get(this.n)) undefined 
+      // channel0 undefined  at ({ channel0, channel1 } = this.buffers.get(this.n)) 
       // while this.readable.locked; this.writable.locked (reading; writing) 
       // until this.buffers.size > 0
       return true;
