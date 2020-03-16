@@ -10,8 +10,6 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
   async appendBuffers({ data: { readable, processStream } }) {
     processStream = new Function(`return ${processStream}`)();
     // https://github.com/WebAudio/web-audio-api-v2/issues/70
-    // store at least minSamples before posting to main thread
-    // where resume() is executed then process() for first time
     const minSamples = 64;
     let next = [];
     let overflow = [[], []];
@@ -105,7 +103,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           });
           ++this.i;
         }
-      }
+      },
     };
 
     const writable = new WritableStream(source, strategy);
@@ -120,14 +118,14 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       currentTime,
       currentFrame,
       overflow,
-      next
+      next,
     });
   }
   endOfStream() {
     this.port.postMessage({
       ended: true,
       currentTime,
-      currentFrame
+      currentFrame,
     });
   }
   process(inputs, outputs) {
@@ -156,7 +154,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       // process() can be executed before appendBuffers()
       // where this.buffers is set with values
       // handle this.buffers.get(this.n) being undefined
-      // for up to 32 calls to process()
+      // for N (e.g., 32) calls to process()
       ({ channel0, channel1 } = this.buffers.get(this.n));
       // glitches can occur when sample frame size is less than 128
       if (
@@ -173,11 +171,10 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       }
     } catch (e) {
       console.error(e, this.buffers.size, this.i, this.n);
-      // handle this.buffers.size === 0 while this.readable.locked (reading)
-      // where entry in this.buffers (Map) deleted and this.writable (writing)
-      // not having set new entry this.buffers,
-      // resulting in no data to set at currentTime
-      // example of JavaScript being single threaded?
+      // handle this.buffers.size === 0
+      // ({ channel0, channel1 } = this.buffers.get(this.n)) undefined 
+      // while this.readable.locked; this.writable.locked (reading; writing) 
+      // until this.buffers.size > 0
       return true;
     }
     const [[outputChannel0], [outputChannel1]] = outputs;
