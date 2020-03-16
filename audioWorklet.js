@@ -50,7 +50,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
         }
         let { ch0, ch1 } = processStream(data);
         // send  128 sample frames to process()
-        // to reduce, not entirely avoid, glitches
+        // to reduce, not entirely avoid, gaps and glitches
         while (ch0.length && ch1.length) {
           let __ch0, __ch1;
           // last splice() not guaranteed to be length 128
