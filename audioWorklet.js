@@ -149,7 +149,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     }
     let channel0, channel1;
     // handle channel0 undefined at this.buffers.get(this.n)
-    // e.g., mimSamples < 64
+    // e.g., minSamples < 64 in appendBuffers() 
     try {
       ({ channel0, channel1 } = this.buffers.get(this.n));
       // glitches can occur when sample frame size is less than 128
