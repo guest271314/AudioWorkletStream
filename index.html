@@ -22,10 +22,10 @@
       constructor({
         codecs = ["audio/wav"]
       , urls = [""]
-      , sampleRate = 44100
-	  , numberOfChannels = 2
-	  , latencyHint = "playback"
-	  , workletOptions = {}
+      , sampleRate = 44100  
+      , numberOfChannels = 2
+      , latencyHint = "playback"
+      , workletOptions = {}
       } = {}) {
         this.mediaStreamTrack = new Promise(async resolve => {
           const ac = new AudioContext({
