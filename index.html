@@ -2,31 +2,26 @@
 <html>
 
 <head>
-  <title>Stream audio from Worker to AudioWorklet</title>
+	<title>Stream audio from Worker to AudioWorklet without MediaStream</title>
 </head>
 
 <body>
-  <audio autoplay controls></audio>
-  <pre>DELTAnine Live at 8X10 on 2013-12-11 (Deltanine121113Pt3Wav.wav)</pre>
-  <script>
-    // AudioWorkletStream 
+	<pre>
+DELTAnine Live at 8X10 on 2013-12-11
+(Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre>
+    <button>Start Audio Playback</button>
+	<script>
+		// AudioWorkletStream 
     // Stream audio from Worker to AudioWorklet (POC)
     // guest271314 2-24-2020
     "use strict";
-    const handleEvents = e => globalThis.console.log(e.type === "statechange" ? e.target.state : e.type);
-    const audio = document.querySelector("audio");
-    // audio.ontimeupdate = e => console.log(audio.currentTime, ac.currentTime);
-    const events = ["durationchange", "ended", "loadedmetadata", "pause", "play", "playing", "suspend", "waiting"];
-    for (const evt of events) {
-      audio.addEventListener(evt, handleEvents);
-    }
-
+    const handleEvents = e => globalThis.console.log(e.type === "statechange" ? "AudioContext.state:" + e.target.state : e.type);
+    const button = document.querySelector("button");
     class AudioWorkletStream {
       constructor({
         codecs = ["audio/wav"], urls = [""], sampleRate = 44100, numberOfChannels = 2, latencyHint = "playback", workletOptions = {}
       } = {}) {
         this.mediaStreamTrack = new Promise(async resolve => {
-          gc();
           const ac = new AudioContext({
             sampleRate,
             numberOfChannels,
@@ -36,24 +31,10 @@
           console.log(ac.baseLatency);
           ac.onstatechange = handleEvents;
           await ac.audioWorklet.addModule("audioWorklet.js");
+          // optionally pass MediaStreamTrack to resolve()
+          resolve();
           const aw = new AudioWorkletNode(ac, "audio-data-worklet-stream", workletOptions);
-          const msd = new MediaStreamAudioDestinationNode(ac);
-          const {
-            stream
-          } = msd;
-          // MediaStreamTrack, kind "audio"
-          const [track] = stream.getAudioTracks();
-          // fulfill Promise with MediaStreamTrack
-          resolve(track);
-          // set enabled to false
-          track.enabled = false;
-          aw.connect(msd);
-          // inactive event at Chromium 81
-          // not longer defined in Media Capture and Streams specification
-          // Firefox does not yet fully support AudioWorklet
-          stream.oninactive = stream.onactive = handleEvents;
-          // not dispatched at Chromium 81
-          track.onmute = track.onunmute = track.onended = handleEvents;
+          aw.connect(ac.destination);
           // transfer sources, here, e.g., file handle
           // ReadableStream, WritableStream (https://github.com/whatwg/streams/blob/master/transferable-streams-explainer.md)
           // etc.
@@ -67,23 +48,17 @@
           }, [aw.port]);
           worker.onmessage = async e => {
             // use suspend(), resume() to synchronize to degree possible
-            // with currentTime of <audio> with MediaStream set as srcObject
             if (e.data.start) {
-              track.enabled = true;
               await ac.resume();
             }
-            if (e.data.ended) {
-              track.stop();
-              track.enabled = false;
+            if (e.data.ended) {  
+              console.log(e.data.currentTime, e.data.currentFrame);
+              button.disabled = false;
+              button.textContent = "Start Audio Playback";
               await ac.suspend();
-              msd.disconnect();
               aw.disconnect();
               aw.port.close();
-              await ac.close();
-              console.log(e.data.currentTime, e.data.currentFrame);
-              // audio.srcObject.removeTrack(audio.srcObject.getAudioTracks()[0]);
-              // audio.load();
-              for (const event of events) audio.removeEventListener(event, handleEvents);
+              await ac.close();  
               worker.terminate();
             };
           };
@@ -91,7 +66,9 @@
       };
     };
 
-    (async() => {
+    button.onclick = async _ => {
+      button.disabled = true;
+      button.textContent = "Audio Playing";
       // set parameters as arrays for potential "infinite" input, output stream
       let workletStream = new AudioWorkletStream({
         codecs: ["audio/wav"],
@@ -103,23 +80,14 @@
           numberOfOutputs: 2,
           channelCount: 2,
           processorOptions: {
-            buffers: new Map(),
+            buffers: new Map,
             i: 0,
             n: 0
           }
         }
       });
-      let {
-        mediaStreamTrack
-      } = workletStream;
-      let mediaStream = new MediaStream();
-      // Chromium bug, https://bugs.chromium.org/p/chromium/issues/detail?id=1045832 
-      // currentTime does not progress at HTMLMediaElement when addTrack() is called on a MediaStream 
-      // set as srcObject on <audio>, <video> where no MediaStreamTrack (getAudioTracks() // []) is previously set
-      mediaStream.addTrack(await mediaStreamTrack);
-      audio.srcObject = mediaStream;
-    })();
-  </script>
+    };
+	</script>
 </body>
 
 </html>
