@@ -169,7 +169,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       console.error(e, this.buffers.size, this.i, this.n);
       // handle TypeError: Cannot destructure property 'channel0' of 'this.buffers.get(...)' as it is undefined.
       // while this.buffers.size === 0, this.readable.locked, this.writable.locked
-      // until this.buffers.size > 0
+      // return true until this.buffers.size > 0
       return true;
     }
     const [[outputChannel0], [outputChannel1]] = outputs;
