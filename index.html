@@ -1,99 +1,109 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Stream audio from Worker to AudioWorklet without MediaStream</title>
+  </head>
 
-<head>
-	<title>Stream audio from Worker to AudioWorklet without MediaStream</title>
-</head>
-
-<body>
-  <pre>
-  DELTAnine Live at 8X10 on 2013-12-11
-  (Deltanine121113Pt3Wav.wav size 291MB duration 27:27)
-  </pre>
-  <button>Start Audio Playback</button>
-  <script>
-    // AudioWorkletStream 
-    // Stream audio from Worker to AudioWorklet (POC)
-    // guest271314 2-24-2020
-    "use strict";
-    const handleEvents = e => globalThis.console.log(e.type === "statechange" ? e.target.state : e.type);
-    const button = document.querySelector("button");
-    class AudioWorkletStream {
-      constructor({
-        codecs = ["audio/wav"]
-      , urls = [""]
-      , sampleRate = 44100  
-      , numberOfChannels = 2
-      , latencyHint = "playback"
-      , workletOptions = {}
-      } = {}) {
-        this.mediaStreamTrack = new Promise(async resolve => {
-          const ac = new AudioContext({
-            sampleRate,
-            numberOfChannels,
-            latencyHint
-          });
-          await ac.suspend();
-          console.log(ac.baseLatency);
-          ac.onstatechange = handleEvents;
-          await ac.audioWorklet.addModule("audioWorklet.js");
-          // optionally pass MediaStreamTrack to resolve()
-          resolve();
-          const aw = new AudioWorkletNode(ac, "audio-data-worklet-stream", workletOptions);
-          aw.connect(ac.destination);
-          // transfer sources, here, e.g., file handle
-          // ReadableStream, WritableStream (https://github.com/whatwg/streams/blob/master/transferable-streams-explainer.md)
-          // etc.
-          const worker = new Worker("worker.js", {
-            type: "module"
-          });
-          worker.postMessage({
-            port: aw.port,
-            codecs,
-            urls
-          }, [aw.port]);
-          worker.onmessage = async e => {
-            // use suspend(), resume() to synchronize to degree possible
-            if (e.data.start) {
-              await ac.resume();
-            }
-            if (e.data.ended) {  
-              console.log(e.data.currentTime, e.data.currentFrame);
-              button.disabled = false;
-              button.textContent = "Start Audio Playback";
-              await ac.suspend();
-              aw.disconnect();
-              aw.port.close();
-              await ac.close();  
-              worker.terminate();
+  <body>
+    <pre>
+DELTAnine Live at 8X10 on 2013-12-11
+(Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre>
+    <button>Start Audio Playback</button>
+    <script>
+      // AudioWorkletStream
+      // Stream audio from Worker to AudioWorklet (POC)
+      // guest271314 2-24-2020
+      'use strict';
+      const handleEvents = e =>
+        globalThis.console.log(
+          e.type === 'statechange'
+            ? 'AudioContext.state:' + e.target.state
+            : e.type
+        );
+      const button = document.querySelector('button');
+      class AudioWorkletStream {
+        constructor({
+          codecs = ['audio/wav'],
+          urls = [''],
+          sampleRate = 44100,
+          numberOfChannels = 2,
+          latencyHint = 'playback',
+          workletOptions = {},
+        } = {}) {
+          this.mediaStreamTrack = new Promise(async resolve => {
+            const ac = new AudioContext({
+              sampleRate,
+              numberOfChannels,
+              latencyHint,
+            });
+            await ac.suspend();
+            console.log(ac.baseLatency);
+            ac.onstatechange = handleEvents;
+            await ac.audioWorklet.addModule('audioWorklet.js');
+            // optionally pass MediaStreamTrack to resolve()
+            resolve();
+            const aw = new AudioWorkletNode(
+              ac,
+              'audio-data-worklet-stream',
+              workletOptions
+            );
+            aw.connect(ac.destination);
+            // transfer sources, here, e.g., file handle
+            // ReadableStream, WritableStream (https://github.com/whatwg/streams/blob/master/transferable-streams-explainer.md)
+            // etc.
+            const worker = new Worker('worker.js', {
+              type: 'module',
+            });
+            worker.postMessage(
+              {
+                codecs,
+                urls,
+              },
+              [aw.port]
+            );
+            worker.onmessage = async e => {
+              // use suspend(), resume() to synchronize to degree possible
+              if (e.data.start) {
+                await ac.resume();
+              }
+              if (e.data.ended) {
+                console.log(e.data.currentTime, e.data.currentFrame);
+                button.disabled = false;
+                button.textContent = 'Start Audio Playback';
+                await ac.suspend();
+                aw.disconnect();
+                aw.port.close();
+                await ac.close();
+                worker.terminate();
+              }
             };
-          };
+          });
+        }
+      }
+
+      button.onclick = async _ => {
+        button.disabled = true;
+        button.textContent = 'Audio Playing';
+        // set parameters as arrays for potential "infinite" input, output stream
+        let workletStream = new AudioWorkletStream({
+          codecs: ['audio/wav'],
+          // 291MB
+          urls: [
+            'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav',
+          ],
+          latencyHint: 1.0,
+          workletOptions: {
+            numberOfInputs: 2,
+            numberOfOutputs: 2,
+            channelCount: 2,
+            processorOptions: {
+              buffers: new Map(),
+              i: 0,
+              n: 0,
+            },
+          },
         });
       };
-    };
-
-    button.onclick = async _ => {
-      button.disabled = true;
-      button.textContent = "Audio Playing";
-      // set parameters as arrays for potential "infinite" input, output stream
-      let workletStream = new AudioWorkletStream({
-        codecs: ["audio/wav"],
-        // 291MB
-        urls: ["https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav"],
-        latencyHint: 1.0,
-        workletOptions: {
-          numberOfInputs: 2,
-          numberOfOutputs: 2,
-          channelCount: 2,
-          processorOptions: {
-            buffers: new Map,
-            i: 0,
-            n: 0
-          }
-        }
-      });
-    };
-  </script>
-</body>
-
+    </script>
+  </body>
 </html>
