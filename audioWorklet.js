@@ -10,7 +10,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
   async appendBuffers({ data: { readable, processStream } }) {
     processStream = new Function(`return ${processStream}`)();
     // https://github.com/WebAudio/web-audio-api-v2/issues/70
-    const minSamples = 64;
+    const minSamples = 48;
     let next = [];
     let overflow = [[], []];
     let init = false;
