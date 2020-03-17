@@ -147,9 +147,9 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       this.endOfStream();
       return false;
     }
-    let channel0, channel1;
-    // handle channel0 undefined at this.buffers.get(this.n)
-    // e.g., minSamples < 64 in appendBuffers() 
+    // handle TypeError: Cannot destructure property 'channel0' of 'this.buffers.get(...)' as it is undefined.
+    // while this.buffers.size === 0, this.readable.locked, this.writable.locked
+    // e.g., minSamples < 64 in appendBuffers()
     try {
       ({ channel0, channel1 } = this.buffers.get(this.n));
       // glitches can occur when sample frame size is less than 128
@@ -167,8 +167,6 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       }
     } catch (e) {
       console.error(e, this.buffers.size, this.i, this.n);
-      // handle TypeError: Cannot destructure property 'channel0' of 'this.buffers.get(...)' as it is undefined.
-      // while this.buffers.size === 0, this.readable.locked, this.writable.locked
       // return true until this.buffers.size > 0
       return true;
     }
