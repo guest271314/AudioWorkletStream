@@ -18,11 +18,11 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     let overflow = [[], []];
     let init = false;
 
-    globalThis.console.log({
+    globalThis.console.log(
       currentTime,
       currentFrame,
-      buffers: this.buffers,
-    });
+      this.buffers.size,
+    );
 
     const strategy = new ByteLengthQueuingStrategy({
       highWaterMark: 32 * 1024,
