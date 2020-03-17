@@ -136,7 +136,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           this.buffers.size
       );
     }
-    if (currentTime > 0.9 && this.buffers.size === 0) {
+    if (currentTime > 0.9 && this.buffers.size === 0 && this.n === this.i) {
       console.log(
         this.i,
         this.n,
