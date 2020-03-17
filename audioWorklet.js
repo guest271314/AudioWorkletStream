@@ -18,11 +18,11 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     let overflow = [[], []];
     let init = false;
 
-    globalThis.console.log(
+    globalThis.console.log({
       currentTime,
       currentFrame,
-      this.buffers.size,
-    );
+      buffers: this.buffers,
+    });
 
     const strategy = new ByteLengthQueuingStrategy({
       highWaterMark: 32 * 1024,
@@ -50,7 +50,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
         }
         let { ch0, ch1 } = processStream(data);
         // send  128 sample frames to process()
-        // to reduce, not entirely avoid, gaps and glitches
+        // to reduce, not entirely avoid, glitches
         while (ch0.length && ch1.length) {
           let __ch0, __ch1;
           // last splice() not guaranteed to be length 128
@@ -136,7 +136,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           this.buffers.size
       );
     }
-    if (currentTime > 0.9 && this.buffers.size === 0 && this.n === this.i) {
+    if (currentTime > 0.9 && this.buffers.size === 0) {
       console.log(
         this.i,
         this.n,
@@ -147,6 +147,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       this.endOfStream();
       return false;
     }
+    let channel0, channel1;
     // handle TypeError: Cannot destructure property 'channel0' of 'this.buffers.get(...)' as it is undefined.
     // while this.buffers.size === 0, this.readable.locked, this.writable.locked
     // can occur where minSamples < 64 in appendBuffers()
