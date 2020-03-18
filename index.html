@@ -7,7 +7,8 @@
   <body>
     <pre>
 DELTAnine Live at 8X10 on 2013-12-11
-(Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre>
+(Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre
+    >
     <button>Start Audio Playback</button>
     <script>
       // AudioWorkletStream
@@ -86,7 +87,6 @@ DELTAnine Live at 8X10 on 2013-12-11
         button.textContent = 'Audio Playing';
         // set parameters as arrays for potential "infinite" input, output stream
         let workletStream = new AudioWorkletStream({
-          codecs: ['audio/wav'],
           // 291MB
           urls: [
             'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav',
@@ -98,6 +98,8 @@ DELTAnine Live at 8X10 on 2013-12-11
             channelCount: 2,
             processorOptions: {
               buffers: new Map(),
+              codec: 'audio/wav',
+              processStarted: false,
               i: 0,
               n: 0,
             },
