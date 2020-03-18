@@ -49,7 +49,8 @@ DELTAnine Live at 8X10 on 2013-12-11
               workletOptions
             );
             aw.connect(ac.destination);
-            // transfer sources, here, e.g., Native File System file handle
+            // transfer sources, here, e.g.
+            // Native File System file handle https://github.com/WICG/native-file-system/issues/117
             // ReadableStream, WritableStream https://github.com/whatwg/streams/blob/master/transferable-streams-explainer.md
             const worker = new Worker('worker.js', {
               type: 'module',
