@@ -1,14 +1,15 @@
+import { CODECS } from './codecs.js';
+
 class AudioDataWorkletStream extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
     if (options.processorOptions) {
       Object.assign(this, options.processorOptions);
     }
-    this.processStarted = false;
     this.port.onmessage = this.appendBuffers.bind(this);
   }
-  async appendBuffers({ data: { readable, processStream } }) {
-    processStream = new Function(`return ${processStream}`)();
+  async appendBuffers({ data: { readable } }) {
+    const processStream = CODECS.get(this.codec);
     // >= 64 to avoid TypeError:
     // Cannot destructure property 'channel0'
     // of 'this.buffers.get(...)' as it is undefined.
@@ -18,11 +19,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     let overflow = [[], []];
     let init = false;
 
-    globalThis.console.log({
-      currentTime,
-      currentFrame,
-      buffers: this.buffers,
-    });
+    globalThis.console.log(currentTime, currentFrame, this.buffers.size);
 
     const strategy = new ByteLengthQueuingStrategy({
       highWaterMark: 32 * 1024,
