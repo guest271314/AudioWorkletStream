@@ -13,7 +13,7 @@ onmessage = async e => {
   async function* stream(input) {
     while (input.length) {
       yield (await fetch(input.shift())).body.pipeTo(writable, {
-        preventClose: input.length,
+        preventClose: !!input.length
       });
     };
   };
