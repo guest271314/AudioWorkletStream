@@ -12,10 +12,8 @@ onmessage = async e => {
   const readable = new ReadableStream({
     async start(controller) {
       for (const url of urls) {
-        const response = await fetch(url);
-        const rs = response.body;
-        const reader = rs.getReader();
-        reading: while (true) {         
+        const reader = (await fetch(url)).body.getReader();
+        reading: while (true) {
           const { value, done } = await reader.read();
           if (done) {
             console.log('done reading ' + url);
@@ -25,7 +23,7 @@ onmessage = async e => {
         }
       }
       controller.close();
-    }
+    },
   });
   port.postMessage(
     {
