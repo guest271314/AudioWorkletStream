@@ -1,5 +1,4 @@
 import { CODECS } from './codecs.js';
-
 class AudioDataWorkletStream extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
@@ -18,13 +17,10 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     let next = [];
     let overflow = [[], []];
     let init = false;
-
     globalThis.console.log(currentTime, currentFrame, this.buffers.size);
-
     const strategy = new ByteLengthQueuingStrategy({
       highWaterMark: 32 * 1024,
     });
-
     const source = {
       write: value => {
         // value (Uint8Array) length is not guaranteed to be multiple of 2 for Uint16Array
@@ -36,15 +32,15 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           const prev = [...next.splice(0, next.length), ...value];
           while (prev.length % 2 !== 0) {
             next.push(...prev.splice(-1));
-          }
+          };
           value = new Uint8Array(prev);
-        }
+        };
         // we do not need length here, we process input until no more, or infinity
         let data = new Uint16Array(value.buffer);
         if (!init) {
           init = true;
           data = data.subarray(22);
-        }
+        };
         let { ch0, ch1 } = processStream(data);
         // send  128 sample frames to process()
         // to reduce, not entirely avoid, glitches
@@ -58,19 +54,19 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
             overflow0.push(..._ch0);
             overflow1.push(..._ch1);
             break;
-          }
+          };
           if (overflow0.length || overflow1.length) {
             __ch0 = overflow0.splice(0, overflow0.length);
             __ch1 = overflow1.splice(0, overflow1.length);
             while (__ch0.length < 128 && _ch0.length) {
               let [float] = _ch0.splice(0, 1);
               __ch0.push(float);
-            }
+            };
             while (__ch1.length < 128 && _ch1.length) {
               let [float] = _ch1.splice(0, 1);
               __ch1.push(float);
-            }
-          }
+            };
+          };
           const channel0 = new Float32Array(__ch0 || _ch0);
           const channel1 = new Float32Array(__ch1 || _ch1);
           this.buffers.set(this.i, {
@@ -83,8 +79,8 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
             this.port.postMessage({
               start: true,
             });
-          }
-        }
+          };
+        };
       },
       close: _ => {
         console.log('writable close');
@@ -97,30 +93,26 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
             channel1,
           });
           ++this.i;
-        }
-      },
+        };
+      }
     };
-
     const writable = new WritableStream(source, strategy);
-
     Object.assign(this, { readable, writable });
-
     await readable.pipeTo(writable, {
       preventCancel: true,
     });
-
     globalThis.console.log('read/write done', {
       currentTime,
       currentFrame,
       overflow,
-      next,
+      next
     });
   }
   endOfStream() {
     this.port.postMessage({
       ended: true,
       currentTime,
-      currentFrame,
+      currentFrame
     });
   }
   process(inputs, outputs) {
@@ -163,7 +155,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           currentFrame,
           this.buffers.size
         );
-      }
+      };
     } catch (e) {
       console.error(e, this.buffers.size, this.i, this.n);
       // return true until this.buffers.size > 0
