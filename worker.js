@@ -23,7 +23,7 @@ onmessage = async e => {
   read(urls);
   port.postMessage(
     {
-      readable,
+      readable
     },
     [readable]
   );
