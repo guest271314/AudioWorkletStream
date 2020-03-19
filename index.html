@@ -1,3 +1,4 @@
+ 
 <!DOCTYPE html>
 <html>
   <head>
@@ -5,14 +6,16 @@
   </head>
 
   <body>
+    <!--
     <pre>
 DELTAnine Live at 8X10 on 2013-12-11
 (Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre
     >
+    -->
     <button>Start Audio Playback</button>
     <script>
       // AudioWorkletStream
-      // Stream audio from Worker to AudioWorklet (POC)
+      // Stream audio from Worker to AudioWorklet
       // guest271314 2-24-2020
       'use strict';
       const handleEvents = e =>
@@ -86,9 +89,15 @@ DELTAnine Live at 8X10 on 2013-12-11
         button.textContent = 'Audio Playing';
         // set parameters as arrays for potential "infinite" input, output stream
         let workletStream = new AudioWorkletStream({
-          // 291MB
+          
           urls: [
-            'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav',
+            /*
+            'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav', // 291MB
+            */          
+            'house--64kbs-0-wav',
+            'house--64kbs-1-wav',
+            'house--64kbs-2-wav',
+            'house--64kbs-3-wav'
           ],
           latencyHint: 1.0,
           workletOptions: {
