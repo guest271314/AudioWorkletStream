@@ -18,7 +18,7 @@ onmessage = async e => {
     };
   };
   async function read(input) {
-    for await (const track of stream(input));
+    for await (const _ of stream(input));
   };
   read(urls);
   port.postMessage(
