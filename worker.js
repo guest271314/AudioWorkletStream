@@ -9,22 +9,18 @@ onmessage = async e => {
     port.onmessage = event => postMessage(event.data);
   }
   const { urls } = e.data;
-  const readable = new ReadableStream({
-    async start(controller) {
-      for (const url of urls) {
-        const reader = (await fetch(url)).body.getReader();
-        reading: while (true) {
-          const { value, done } = await reader.read();
-          if (done) {
-            console.log('done reading ' + url);
-            break reading;
-          }
-          controller.enqueue(value);
-        }
-      }
-      controller.close();
-    },
-  });
+  const { readable, writable } = new TransformStream();
+  async function* stream(input) {
+    while (input.length) {
+      yield (await fetch(input.shift())).body.pipeTo(writable, {
+        preventClose: input.length,
+      });
+    };
+  };
+  async function read(input) {
+    for await (const track of stream(input));
+  };
+  read(urls);
   port.postMessage(
     {
       readable,
