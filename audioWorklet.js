@@ -83,7 +83,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
         }
       },
       close: _ => {
-        console.log('writable close');
+        console.log('writable close', currentTime, currentFrame, this.buffers.size, next.length, overflow.length);
         // handle overflow floats < 128 length
         if (overflow[0].length || overflow[0].length) {
           const channel0 = new Float32Array(overflow.splice(0, 1)[0]);
@@ -101,16 +101,8 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     await readable.pipeTo(writable, {
       preventCancel: true,
     });
-    console.log('read/write done, currentTime:' 
-      + currentTime 
-      + ', currentFrame:'
-      + currentFrame                       
-      + ', this.buffers.size:' 
-      + this.buffers.size
-      + ', next.length:'
-      + next.length
-      + ', overflow.length:'
-      + overflow.length);
+    console.log('read/write done', currentTime, currentFrame, this.buffers.size, next.length, overflow.length);
+
   }
   endOfStream() {
     this.port.postMessage({
