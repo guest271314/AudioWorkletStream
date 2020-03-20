@@ -19,7 +19,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     let init = false;
     globalThis.console.log(currentTime, currentFrame, this.buffers.size);
     const strategy = new ByteLengthQueuingStrategy({
-      highWaterMark: 1
+      highWaterMark: 32 * 1024
     });
     const source = {
       write: value => {
