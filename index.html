@@ -1,15 +1,14 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Stream audio from Worker to AudioWorklet without MediaStream</title>
   </head>
+
   <body>
-    <!--
     <pre>
 DELTAnine Live at 8X10 on 2013-12-11
 (Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre
     >
-    -->
     <button>Start Audio Playback</button>
     <script>
       // AudioWorkletStream
@@ -66,7 +65,7 @@ DELTAnine Live at 8X10 on 2013-12-11
               // use suspend(), resume() to synchronize to degree possible
               if (e.data.start) {
                 await ac.resume();
-              };
+              }
               if (e.data.ended) {
                 console.log(e.data.currentTime, e.data.currentFrame);
                 button.disabled = false;
@@ -76,11 +75,11 @@ DELTAnine Live at 8X10 on 2013-12-11
                 aw.port.close();
                 await ac.close();
                 worker.terminate();
-              };
+              }
             };
           });
         }
-      };
+      }
       button.onclick = async _ => {
         button.disabled = true;
         button.textContent = 'Audio Playing';
