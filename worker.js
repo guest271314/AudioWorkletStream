@@ -12,15 +12,15 @@ onmessage = async e => {
   const { readable, writable } = new TransformStream();
   port.postMessage(
     {
-      readable,
+      readable
     },
     [readable]
   );
-  for await (const _ of async function* stream(input) {
-    while (input.length) {
-      yield (await fetch(input.shift())).body.pipeTo(writable, {
-        preventClose: !!input.length,
+  for await (const _ of async function* stream() {
+    while (urls.length) {
+      yield (await fetch(urls.shift())).body.pipeTo(writable, {
+        preventClose: !!urls.length
       });
     }
-  }(urls));
+  }());
 };
