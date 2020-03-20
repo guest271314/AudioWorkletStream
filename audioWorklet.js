@@ -101,12 +101,16 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     await readable.pipeTo(writable, {
       preventCancel: true,
     });
-    globalThis.console.log('read/write done', {
-      currentTime,
-      currentFrame,
-      overflow,
-      next,
-    });
+    globalThis.console.log('read/write done, currentTime:' 
+      + currentTime 
+      + ', currentFrame:'
+      + currentFrame                       
+      + ', this.buffers.size:' 
+      + this.buffers.size'
+      + ', next.length:'
+      + next.length
+      + ', overflow.length:'
+      + overflow.length);
   }
   endOfStream() {
     this.port.postMessage({
