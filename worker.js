@@ -23,5 +23,4 @@ onmessage = async e => {
       });
     }
   })());
-  
 };
