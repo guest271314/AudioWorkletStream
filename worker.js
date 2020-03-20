@@ -10,21 +10,17 @@ onmessage = async e => {
   }
   const { urls } = e.data;
   const { readable, writable } = new TransformStream();
-  async function* stream(input) {
-    while (input.length) {
-      yield (await fetch(input.shift())).body.pipeTo(writable, {
-        preventClose: !!input.length
-      });
-    };
-  };
-  async function read(input) {
-    for await (const _ of stream(input));
-  };
-  read(urls);
   port.postMessage(
     {
-      readable
+      readable,
     },
     [readable]
   );
+  for await (const _ of (async function* stream(input) {
+    while (input.length) {
+      yield (await fetch(input.shift())).body.pipeTo(writable, {
+        preventClose: !!input.length,
+      });
+    }
+  })(urls));
 };
