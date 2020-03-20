@@ -16,11 +16,11 @@ onmessage = async e => {
     },
     [readable]
   );
-  for await (const _ of (async function* stream(input) {
+  for await (const _ of async function*stream(input) {
     while (input.length) {
       yield (await fetch(input.shift())).body.pipeTo(writable, {
         preventClose: !!input.length,
       });
     }
-  })(urls));
+  }(urls));
 };
