@@ -115,9 +115,8 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     if (!this.processStarted) {
       this.processStarted = true;
       console.log(
-        'process() first call, currentTime:' +
-          currentTime +
-          ', this.buffers.size:' +
+        'process() first call',
+          currentTime,
           this.buffers.size
       );
     }
