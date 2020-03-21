@@ -44,6 +44,7 @@
               'audio-data-worklet-stream',
               workletOptions
             );
+            aw.onprocessorerror = e => console.error(e);
             aw.connect(ac.destination);
             // transfer sources, here, e.g.
             // Native File System file handle https://github.com/WICG/native-file-system/issues/117
