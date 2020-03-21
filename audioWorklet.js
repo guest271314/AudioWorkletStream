@@ -89,15 +89,15 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           console.log('overflow', overflow[0], overflow[1]);
           // channel0, channel1 should always be <= 128 here and in process()
           while (overflow[0].length || overflow[1].length) {
-          const channel0 = new Float32Array(overflow[0].splice(0, 128));
-          const channel1 = new Float32Array(overflow[1].splice(0, 128));
-          this.buffers.set(this.i, {
-            channel0,
-            channel1,
-          });
-          ++this.i;
-          }
-        }
+            const channel0 = new Float32Array(overflow[0].splice(0, 128));
+            const channel1 = new Float32Array(overflow[1].splice(0, 128));
+            this.buffers.set(this.i, {
+              channel0,
+              channel1,
+            });
+            ++this.i;
+          };
+        };
       },
     };
     const writable = new WritableStream(source, strategy);
