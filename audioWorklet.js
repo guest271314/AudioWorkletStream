@@ -85,7 +85,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       close: _ => {
         console.log('writable close', currentTime, currentFrame, this.buffers.size, next.length, overflow.length);
         // handle overflow floats < 128 length
-        if (overflow[0].length || overflow[0].length) {
+        if (overflow[0].length || overflow[1].length) {
           const channel0 = new Float32Array(overflow.splice(0, 1)[0]);
           const channel1 = new Float32Array(overflow.splice(0, 1)[0]);
           this.buffers.set(this.i, {
