@@ -156,8 +156,14 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       return true;
     }
     const [[outputChannel0], [outputChannel1]] = outputs;
-    outputChannel0.set(channel0);
-    outputChannel1.set(channel1);
+    // handle Disable cache checked at Chromium where channel0 offset can be > 128
+    try {
+      outputChannel0.set(channel0);
+      outputChannel1.set(channel1);
+    } catch (e) {
+      console.error(e, channel0, channel1);
+      throw e;
+    }
     this.buffers.delete(this.n);
     ++this.n;
     return true;
