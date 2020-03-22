@@ -160,11 +160,16 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       return true;
     }
     const [[outputChannel0], [outputChannel1]] = outputs;
+    // handle channel0 length > 128
+    // can occur when Disable cache checked at Chromium
     try {
+      // alternatively use slice or subarray to get/set 128 length
       outputChannel0.set(channel0);
       outputChannel1.set(channel1);
     } catch (e) {
       console.log(channel0.length, channel1.length);
+      // sample length should not be > 128 per logic in appendBuffers()
+      // throw instead of using slice(), subarray() until determine why that is the case
       throw e;
     }
     this.buffers.delete(this.n);
