@@ -158,7 +158,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
         );
       }
     } catch (e) {
-      console.error(e, this.buffers.size, this.i, this.n);
+      console.error(e, this.buffers.size, this.i, this.n, this.readable);
       // return true until this.buffers.size > 0
       return true;
     }
