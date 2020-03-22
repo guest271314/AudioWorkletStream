@@ -7,7 +7,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     }
     this.port.onmessage = this.appendBuffers.bind(this);
   }
-  async appendBuffers({ data: { readable } }) {
+  async *stream(reader) {
     const processStream = CODECS.get(this.codec);
     // >= 64 to avoid TypeError:
     // Cannot destructure property 'channel0'
@@ -17,103 +17,99 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     let next = [];
     let overflow = [[], []];
     let init = false;
-    globalThis.console.log(currentTime, currentFrame, this.buffers.size);
-    const reader = readable.getReader();
-    for await (const _ of (async function* stream() {
-      while (true) {
-        let { value, done } = await reader.read();
-        if (done) {
-          console.log(
-            'readable close',
-            currentTime,
-            currentFrame,
-            this.buffers.size,
-            next.length,
-            overflow.length
-          );
-          // handle overflow floats < 128 length
-          if (overflow[0].length || overflow[1].length) {
-            const channel0 = new Float32Array(overflow.splice(0, 1)[0]);
-            const channel1 = new Float32Array(overflow.splice(0, 1)[0]);
-            this.buffers.set(this.i, {
-              channel0,
-              channel1,
-            });
-            ++this.i;
-          }
-          return await reader.closed;
-        }
-        // value (Uint8Array) length is not guaranteed to be multiple of 2 for Uint16Array
-        // store remainder of value in next array
-        if (value.length % 2 !== 0 && next.length === 0) {
-          next.push(...value.slice(value.length - 1));
-          value = value.slice(0, value.length - 1);
-        } else {
-          const prev = [...next.splice(0, next.length), ...value];
-          while (prev.length % 2 !== 0) {
-            next.push(...prev.splice(-1));
-          }
-          value = new Uint8Array(prev);
-        }
-        // we do not need length here, we process input until no more, or infinity
-        let data = new Uint16Array(value.buffer);
-        if (!init) {
-          init = true;
-          data = data.subarray(22);
-        }
-        let { ch0, ch1 } = processStream(data);
-        // send  128 sample frames to process()
-        // to reduce, not entirely avoid, glitches
-        sample: while (ch0.length && ch1.length) {
-          let __ch0, __ch1;
-          // last splice() not guaranteed to be length 128
-          let _ch0 = ch0.splice(0, 128);
-          let _ch1 = ch1.splice(0, 128);
-          let [overflow0, overflow1] = overflow;
-          if (_ch0.length < 128 || _ch1.length < 128) {
-            overflow0.push(..._ch0);
-            overflow1.push(..._ch1);
-            break sample;
-          }
-          if (overflow0.length || overflow1.length) {
-            __ch0 = overflow0.splice(0, overflow0.length);
-            __ch1 = overflow1.splice(0, overflow1.length);
-            while (__ch0.length < 128 && _ch0.length) {
-              let [float] = _ch0.splice(0, 1);
-              __ch0.push(float);
-            }
-            while (__ch1.length < 128 && _ch1.length) {
-              let [float] = _ch1.splice(0, 1);
-              __ch1.push(float);
-            }
-          }
-          const channel0 = new Float32Array(__ch0 || _ch0);
-          const channel1 = new Float32Array(__ch1 || _ch1);
+    while (true) {
+      let { value, done } = await reader.read();
+      if (done) {
+        console.log(
+          'readable close',
+          currentTime,
+          currentFrame,
+          this.buffers.size,
+          next.length,
+          overflow.length
+        );
+        // handle overflow floats < 128 length
+        if (overflow[0].length || overflow[1].length) {
+          const channel0 = new Float32Array(overflow.splice(0, 1)[0]);
+          const channel1 = new Float32Array(overflow.splice(0, 1)[0]);
           this.buffers.set(this.i, {
             channel0,
             channel1,
           });
           ++this.i;
-          if (this.i === minSamples) {
-            console.log('this.buffers.size:' + this.buffers.size);
-            this.port.postMessage({
-              start: true,
-            });
+        }
+        return await reader.closed;
+      }
+      // value (Uint8Array) length is not guaranteed to be multiple of 2 for Uint16Array
+      // store remainder of value in next array
+      if (value.length % 2 !== 0 && next.length === 0) {
+        next.push(...value.slice(value.length - 1));
+        value = value.slice(0, value.length - 1);
+      } else {
+        const prev = [...next.splice(0, next.length), ...value];
+        while (prev.length % 2 !== 0) {
+          next.push(...prev.splice(-1));
+        }
+        value = new Uint8Array(prev);
+      }
+      // we do not need length here, we process input until no more, or infinity
+      let data = new Uint16Array(value.buffer);
+      if (!init) {
+        init = true;
+        data = data.subarray(22);
+      }
+      let { ch0, ch1 } = processStream(data);
+      // send  128 sample frames to process()
+      // to reduce, not entirely avoid, glitches
+      sample: while (ch0.length && ch1.length) {
+        let __ch0, __ch1;
+        // last splice() not guaranteed to be length 128
+        let _ch0 = ch0.splice(0, 128);
+        let _ch1 = ch1.splice(0, 128);
+        let [overflow0, overflow1] = overflow;
+        if (_ch0.length < 128 || _ch1.length < 128) {
+          overflow0.push(..._ch0);
+          overflow1.push(..._ch1);
+          break sample;
+        }
+        if (overflow0.length || overflow1.length) {
+          __ch0 = overflow0.splice(0, overflow0.length);
+          __ch1 = overflow1.splice(0, overflow1.length);
+          while (__ch0.length < 128 && _ch0.length) {
+            let [float] = _ch0.splice(0, 1);
+            __ch0.push(float);
+          }
+          while (__ch1.length < 128 && _ch1.length) {
+            let [float] = _ch1.splice(0, 1);
+            __ch1.push(float);
           }
         }
-        yield;
+        const channel0 = new Float32Array(__ch0 || _ch0);
+        const channel1 = new Float32Array(__ch1 || _ch1);
+        this.buffers.set(this.i, {
+          channel0,
+          channel1,
+        });
+        ++this.i;
+        if (this.i === minSamples) {
+          console.log('this.buffers.size:' + this.buffers.size);
+          this.port.postMessage({
+            start: true,
+          });
+        }
       }
-    }).call(this));
-    
+      yield;
+    }
+  }
+  async appendBuffers({ data: { readable } }) {
+    globalThis.console.log(currentTime, currentFrame, this.buffers.size);
     Object.assign(this, { readable });
-    
+    for await (const _ of this.stream(readable.getReader()));
     console.log(
       'read/write done',
       currentTime,
       currentFrame,
-      this.buffers.size,
-      next.length,
-      overflow.length
+      this.buffers.size
     );
   }
   endOfStream() {
@@ -134,7 +130,6 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
         this.n,
         this.buffers.size,
         this.readable
-        // this.writable
       );
       this.endOfStream();
       return false;
@@ -165,8 +160,13 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       return true;
     }
     const [[outputChannel0], [outputChannel1]] = outputs;
-    outputChannel0.set(channel0);
-    outputChannel1.set(channel1);
+    try {
+      outputChannel0.set(channel0);
+      outputChannel1.set(channel1);
+    } catch (e) {
+      console.log(channel0.length, channel1.length);
+      throw e;
+    }
     this.buffers.delete(this.n);
     ++this.n;
     return true;
