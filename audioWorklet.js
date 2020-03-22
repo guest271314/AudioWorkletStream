@@ -151,7 +151,10 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
           channel1.length,
           currentTime,
           currentFrame,
-          this.buffers.size
+          this.buffers.size,
+          // should already be reading from this.readable
+          // yet still possible for this.buffers.size to be 0 after first read
+          this.readable
         );
       }
     } catch (e) {
