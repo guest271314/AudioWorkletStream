@@ -56,7 +56,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       let data = new Uint16Array(value.buffer);
       if (!init) {
         init = true;
-        data = data.subarray(22);
+        data = data.subarray(44);
       }
       let { ch0, ch1 } = processStream(data);
       // send  128 sample frames to process()
