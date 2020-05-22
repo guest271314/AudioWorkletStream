@@ -13,7 +13,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     // Cannot destructure property 'channel0'
     // of 'this.buffers.get(...)' as it is undefined.
     // within process()
-    const minSamples = 64;
+    const minSamples = 128;
     let next = [];
     let overflow = [[], []];
     let init = false;
