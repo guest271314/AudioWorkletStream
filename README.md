@@ -1,5 +1,5 @@
 # AudioWorkletStream
-Stream audio from fetch() to AudioWorklet
+`fetch()` => `ReadableStream` => `AudioWorklet`
 
 https://guest271314.github.io/AudioWorkletStream/
 
