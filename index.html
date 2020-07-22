@@ -51,7 +51,7 @@
         try {
           if (globalThis.gc) {
             gc();
-          }
+          };
           const [resume, suspend] = document.querySelectorAll('button');
           resume.onclick = async _ => await ac.resume();
           suspend.onclick = async _ => await ac.suspend();
@@ -107,14 +107,14 @@
             };
             for (let i = !offset ? 44 : 0; i < value.length; i++) {
               uint8_sab[offset++] = value[i];
-            }
+            };
             return process(await reader.read());
           })(await reader.read());
           console.log(stream);
         } catch (e) {
           console.error(e);
           throw e;
-        }
+        };
       })().catch(console.trace);
     </script>
   </body>
