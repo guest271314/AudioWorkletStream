@@ -1,5 +1,5 @@
 # AudioWorkletStream
-Stream audio from Worker to AudioWorklet 
+`fetch()` => `ReadableStream` => `AudioWorklet` 
 
 <b>`MessagePort.postMessage()` branch</b>
 
