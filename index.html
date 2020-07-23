@@ -65,7 +65,7 @@ DELTAnine Live at 8X10 on 2013-12-11
                 await ac.resume();
               }
               if (e.data.ended) {
-                console.log(e.data.currentTime, e.data.currentFrame);
+                console.log('audio worklet stream done', e.data.currentTime, e.data.currentFrame);
                 button.disabled = false;
                 button.textContent = 'Start Audio Playback';
                 await ac.suspend();
