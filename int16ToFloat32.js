@@ -1,19 +1,11 @@
 // https://stackoverflow.com/a/35248852
-export default function int16ToFloat32(inputArray) {
-    let ch0 = [];
-    let ch1 = [];
-    for (let i = 0; i < inputArray.length; i++) {
-      const int = inputArray[i];
-      // If the high bit is on, then it is a negative number, and actually counts backwards.
-      const float = (int >= 0x8000) ? -(0x10000 - int) / 0x8000 : int / 0x7FFF;
-      // toggle setting data to channels 0, 1
-      if (i % 2 === 0) {
-        ch0.push(float);
-      } else {
-        ch1.push(float);
-      }
-    };
-    return {
-      ch0, ch1
-    };
+export default function int16ToFloat32(uint16, channels) {
+  // https://stackoverflow.com/a/35248852
+  for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
+    const int = uint16[i];
+    // If the high bit is on, then it is a negative number, and actually counts backwards.
+    const float = int >= 0x8000 ? -(0x10000 - int) / 0x8000 : int / 0x7fff;
+    // interleave
+    channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
   }
+}
