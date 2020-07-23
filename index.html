@@ -1,12 +1,18 @@
+ 
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Stream audio from fetch() in Worker to AudioWorklet</title>
+    <title>Stream audio from Worker to AudioWorklet</title>
   </head>
 
   <body>
+    <pre>
+DELTAnine Live at 8X10 on 2013-12-11
+(Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre
+    >
     <button>Start Audio Playback</button>
     <script>
+      gc();
       // AudioWorkletStream
       // Stream audio from Worker to AudioWorklet
       // guest271314 2-24-2020
@@ -44,11 +50,7 @@
               'audio-data-worklet-stream',
               workletOptions
             );
-            aw.onprocessorerror = e => console.error(e);
             aw.connect(ac.destination);
-            // transfer sources, here, e.g.
-            // Native File System file handle https://github.com/WICG/native-file-system/issues/117
-            // ReadableStream, WritableStream https://github.com/whatwg/streams/blob/master/transferable-streams-explainer.md
             const worker = new Worker('worker.js', {
               type: 'module',
             });
@@ -59,7 +61,6 @@
               [aw.port]
             );
             worker.onmessage = async e => {
-              // use suspend(), resume() to synchronize to degree possible
               if (e.data.start) {
                 await ac.resume();
               }
@@ -77,31 +78,23 @@
           });
         }
       }
+
       button.onclick = async _ => {
         button.disabled = true;
         button.textContent = 'Audio Playing';
         // set parameters as arrays for potential "infinite" input, output stream
-        let workletStream = new AudioWorkletStream({          
+        let workletStream = new AudioWorkletStream({ 
           urls: [
-            /*
-            'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav', // 291MB
-            */          
-            'house--64kbs-0-wav',
-            'house--64kbs-1-wav',
-            'house--64kbs-2-wav',
-            'house--64kbs-3-wav'
+            'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav',
           ],
           latencyHint: 1.0,
           workletOptions: {
-            numberOfInputs: 2,
+            numberOfInputs: 1,
             numberOfOutputs: 2,
             channelCount: 2,
             processorOptions: {
-              buffers: new Map(),
               codec: 'audio/wav',
-              processStarted: false,
-              i: 0,
-              n: 0,
+              offset: 0
             },
           },
         });
