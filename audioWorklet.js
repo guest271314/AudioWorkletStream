@@ -17,7 +17,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
         return 'read/write done';
       }
       for (let i = !index ? 44 : 0; i < value.length; i++) {
-        this.uint8[n++] = value[i];
+        this.uint8[index++] = value[i];
         // accumulate approximately one half second of data
         // to avoid glitches at beginning of playback
         if (index === ((344 / 2) * 512) / 2) {
