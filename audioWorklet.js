@@ -3,7 +3,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
     Object.assign(this, options.processorOptions, {
-      uint8: new Uint8Array(290689440 - 44),
+      uint8: new Uint8Array(70982024),
     });
     this.port.onmessage = this.appendBuffers.bind(this);
   }
