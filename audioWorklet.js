@@ -38,17 +38,21 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     });
   }
   process(inputs, outputs) {
+    if (this.offset === this.uint8.length) {
+      this.endOfStream();
+      return false;
+    }
     const channels = outputs.flat();
     const uint8 = new Uint8Array(512);
     for (let i = 0; i < 512; i++, this.offset++) {
       if (this.offset === this.uint8.length) {
-        this.port.postMessage({ ended: true, currentTime, currentFrame });
-        return false;
+        break;
       }
       uint8[i] = this.uint8[this.offset];
     }
     const uint16 = new Uint16Array(uint8.buffer);
     CODECS.get(this.codec)(uint16, channels);
+    console.log(this.offset, this.index);
     return true;
   }
 }
