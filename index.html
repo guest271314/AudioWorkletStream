@@ -4,15 +4,12 @@
   <head>
     <title>Stream audio from Worker to AudioWorklet</title>
   </head>
-
   <body>
-    <pre>
-DELTAnine Live at 8X10 on 2013-12-11
-(Deltanine121113Pt3Wav.wav size 291MB duration 27:27)</pre
-    >
     <button>Start Audio Playback</button>
     <script>
-      gc();
+      if (globalThis.gc) {
+       gc();
+      }
       // AudioWorkletStream
       // Stream audio from Worker to AudioWorklet
       // guest271314 2-24-2020
