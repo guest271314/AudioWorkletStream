@@ -20,13 +20,16 @@
         }
         process(inputs, outputs) {
           const channels = outputs.flat();
-          if (this.offset >= this.length) {
+          if (this.offset === this.length) {
             console.log(currentTime, currentFrame, this.offset, this.length);
             this.port.postMessage('audio worklet stream done');
             return false;
           }
           const uint8 = new Uint8Array(512);
           for (let i = 0; i < 512; i++, this.offset++) {
+            if (this.offset === this.length) {
+              break;
+            }
             uint8[i] = this.uint8_sab[this.offset];
           }
           const uint16 = new Uint16Array(uint8.buffer);
