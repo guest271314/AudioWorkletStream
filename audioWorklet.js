@@ -52,7 +52,6 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     }
     const uint16 = new Uint16Array(uint8.buffer);
     CODECS.get(this.codec)(uint16, channels);
-    console.log(this.offset, this.index);
     return true;
   }
 }
