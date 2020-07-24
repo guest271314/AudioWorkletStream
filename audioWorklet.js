@@ -38,14 +38,14 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     });
   }
   process(inputs, outputs) {
-    if (this.offset === this.uint8.length) {
+    if (this.offset >= this.uint8.length) {
       this.endOfStream();
       return false;
     }
     const channels = outputs.flat();
     const uint8 = new Uint8Array(512);
     for (let i = 0; i < 512; i++, this.offset++) {
-      if (this.offset === this.uint8.length) {
+      if (this.offset >= this.uint8.length) {
         break;
       }
       uint8[i] = this.uint8[this.offset];
