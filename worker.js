@@ -14,7 +14,7 @@ onmessage = async e => {
   (async _ => {
     for await (const _ of (async function* stream() {
       while (urls.length) {
-        yield (await fetch(urls.shift()), {cache: 'no-store'}).body.pipeTo(writable, {
+        yield (await fetch(urls.shift(), {cache: 'no-store'})).body.pipeTo(writable, {
           preventClose: !!urls.length,
         });
       }
