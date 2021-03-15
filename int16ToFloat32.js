@@ -1,6 +1,5 @@
 // https://stackoverflow.com/a/35248852
 export default function int16ToFloat32(uint16, channels) {
-  // https://stackoverflow.com/a/35248852
   for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
     const int = uint16[i];
     // If the high bit is on, then it is a negative number, and actually counts backwards.
