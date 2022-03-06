@@ -1,4 +1,13 @@
-import { CODECS } from './codecs.js';
+int16ToFloat32(uint16, channels) {
+  // https://stackoverflow.com/a/35248852
+  for (let i = 0, j = 0, n = 1; i < uint16.length; i++) {
+    const int = uint16[i];
+    // If the high bit is on, then it is a negative number, and actually counts backwards.
+    const float = int >= 0x8000 ? -(0x10000 - int) / 0x8000 : int / 0x7fff;
+    // interleave
+    channels[(n = ++n % 2)][!n ? j++ : j - 1] = float;
+  }
+}
 class AudioDataWorkletStream extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
@@ -42,7 +51,7 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       uint8[i] = this.uint8[this.offset];
     }
     const uint16 = new Uint16Array(uint8.buffer);
-    CODECS.get(this.codec)(uint16, channels);
+    int16ToFloat32(uint16, channels);
     return true;
   }
 }
