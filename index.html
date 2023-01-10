@@ -27,7 +27,7 @@
           urls = [''],
           sampleRate = 44100,
           numberOfChannels = 2,
-          latencyHint = 'playback',
+          latencyHint = 0,
           workletOptions = {},
         } = {}) {
           this.mediaStreamTrack = new Promise(async resolve => {
@@ -87,7 +87,7 @@
             'house--64kbs-2-wav',
             'house--64kbs-3-wav',
           ],
-          latencyHint: 1.0,
+          latencyHint: 0,
           workletOptions: {
             numberOfInputs: 1,
             numberOfOutputs: 2,
