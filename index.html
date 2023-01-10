@@ -69,7 +69,7 @@
           // https://bugzilla.mozilla.org/show_bug.cgi?id=1654212
           const length = +headers.get('content-length') || 65536 * 4436;
           const ac = new AudioContext({
-            latencyHint: 1,
+            latencyHint: 0,
             sampleRate: 44100,
             numberOfChannels: 2,
           });
