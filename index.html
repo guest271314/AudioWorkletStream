@@ -30,7 +30,7 @@ DELTAnine Live at 8X10 on 2013-12-11
           urls = [''],
           sampleRate = 44100,
           numberOfChannels = 2,
-          latencyHint = 'playback',
+          latencyHint = 0,
           workletOptions = {},
         } = {}) {
           this.mediaStreamTrack = new Promise(async resolve => {
@@ -88,7 +88,7 @@ DELTAnine Live at 8X10 on 2013-12-11
           urls: [
             'https://ia800301.us.archive.org/10/items/DELTAnine2013-12-11.WAV/Deltanine121113Pt3Wav.wav',
           ],
-          latencyHint: 1.0,
+          latencyHint: 0,
           workletOptions: {
             numberOfInputs: 1,
             numberOfOutputs: 2,
