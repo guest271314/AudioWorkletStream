@@ -5,7 +5,6 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
     Object.assign(this, options.processorOptions, {
       uint8: new Uint8Array(70982024),
     });
-    this.started = false;
     this.port.onmessage = this.appendBuffers.bind(this);
   }
   async appendBuffers({ data: { readable } }) {
@@ -19,10 +18,10 @@ class AudioDataWorkletStream extends AudioWorkletProcessor {
       }
       for (let i = !index ? 44 : 0; i < value.length; i++) {
         this.uint8[index++] = value[i];
-      }
-      if (!this.started) {
-        this.started = true;
-        this.port.postMessage({ start: true });
+        // accumulate 1 second of data to avoid glitches at beginning of playback
+        if (index === 44100) {
+          this.port.postMessage({ start: true });
+        }
       }
       return stream(await reader.read());
     };
